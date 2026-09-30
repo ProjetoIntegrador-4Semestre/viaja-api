@@ -1,5 +1,4 @@
 <?php
-// public/login.php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
@@ -14,18 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (empty($data['username']) || empty($data['password'])) {
+if (empty($data['email']) || empty($data['password'])) {
   http_response_code(400);
-  echo json_encode(["status" => "error", "message" => "Username and password required."]);
+  echo json_encode(["status" => "error", "message" => "Email and password required."]);
   exit();
 }
 
-$username = trim($data['username']);
+$email = trim($data['email']);
 $password = $data['password'];
 
 try {
-  $stmt = $pdo->prepare("SELECT id, username, password FROM users WHERE username = ? LIMIT 1");
-  $stmt->execute([$username]);
+  $stmt = $pdo->prepare("SELECT id, email, password FROM users WHERE email = ? LIMIT 1");
+  $stmt->execute([$email]);
   $user = $stmt->fetch();
 
   if ($user && password_verify($password, $user['password'])) {
@@ -35,7 +34,7 @@ try {
       "message" => "Login successful.",
       "user" => [
         "id" => $user['id'],
-        "username" => $user['username']
+        "email" => $user['email']
       ]
     ]);
   } else {

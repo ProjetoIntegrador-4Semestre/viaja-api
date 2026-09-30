@@ -1,3 +1,4 @@
+<?php
 $host = getenv('DB_HOST');
 $port = getenv('DB_PORT') ?: '6543';
 $dbname = getenv('DB_NAME');

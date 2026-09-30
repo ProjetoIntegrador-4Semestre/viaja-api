@@ -1,5 +1,4 @@
 <?php
-// public/signup.php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
@@ -14,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (empty($data['username']) || empty($data['email']) || empty($data['password'])) {
+if (empty($data['name']) || empty($data['email']) || empty($data['password'])) {
   http_response_code(400);
   echo json_encode(["status" => "error", "message" => "Missing required fields."]);
   exit();
 }
 
-$username = trim($data['username']);
+$name = trim($data['name']);
 $email = trim($data['email']);
 $password = $data['password'];
 
@@ -31,20 +30,19 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-  // Look for duplicate records
-  $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1");
-  $stmt->execute([$username, $email]);
+  $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+  $stmt->execute([$email]);
 
   if ($stmt->fetch()) {
     http_response_code(409);
-    echo json_encode(["status" => "error", "message" => "Username or Email already taken."]);
+    echo json_encode(["status" => "error", "message" => "Email already taken."]);
     exit();
   }
 
   $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
   $insertStmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-  if ($insertStmt->execute([$username, $email, $hashedPassword])) {
+  if ($insertStmt->execute([$name, $email, $hashedPassword])) {
     http_response_code(201);
     echo json_encode(["status" => "success", "message" => "User registered successfully."]);
   }
